@@ -119,3 +119,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+FILE_UPLOAD_PATH = os.path.join(BASE_DIR, 'mvp/static/files/')
+MYSQL_USER= 'root'
+MYSQL_PASSWORD=''
+MYSQL_HOST_IP='localhost'
+MYSQL_PORT='3306'
+MYSQL_DATABASE='bi_mvc'
+CHUNKSIZE = 1000
