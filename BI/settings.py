@@ -120,9 +120,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 FILE_UPLOAD_PATH = os.path.join(BASE_DIR, 'mvp/static/files/')
-MYSQL_USER= 'root'
-MYSQL_PASSWORD=''
-MYSQL_HOST_IP='localhost'
+MYSQL_USER= 'sql12330563'
+MYSQL_PASSWORD='N1fi8XAEcP'
+MYSQL_HOST_IP='sql12.freemysqlhosting.net'
 MYSQL_PORT='3306'
-MYSQL_DATABASE='bi_mvc'
+MYSQL_DATABASE='sql12330563'
 CHUNKSIZE = 1000
