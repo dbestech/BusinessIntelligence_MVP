@@ -36,6 +36,11 @@
   <!-- Google Font: Source Sans Pro -->
   {% load static %}
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <style>
+    .sidebar-collapse .has-treeview.menu-open .nav-treeview { display: none !important; }
+    .sidebar-collapse .sidebar-focused .has-treeview.menu-open .nav-treeview { display: block !important; }
+  </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -66,7 +71,7 @@
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <div class="brand-link navbar-lightblue">
+    <div class="brand-link navbar-lightblue text-center">
       <span class="brand-text font-weight-light"><strong>MVP</strong>-BI</span>
     </div>
     <!-- Sidebar -->
@@ -110,46 +115,58 @@
                           </div>
                         </div>
                       </div>
-                      <button class="btn btn-primary btn-block" type="submit">Submit form</button>
+                      <button class="btn btn-primary btn-block" type="submit">Upload</button>
                     </form>
                   </div>
                 </div>
               </li>
             </ul>
           </li>
-        </ul>
-        <div class="form-group">
-          <label>Product Line</label>
-          <select class="form-control">
-            <option>option 1</option>
-            <option>option 2</option>
-            <option>option 3</option>
-            <option>option 4</option>
-            <option>option 5</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Year</label>
-          <select class="form-control">
-            <option>option 1</option>
-            <option>option 2</option>
-            <option>option 3</option>
-            <option>option 4</option>
-            <option>option 5</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Date range:</label>
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text">
-                <i class="far fa-calendar-alt"></i>
-              </span>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-filter"></i>
+              <p>
+                Control Panel
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <div class="nav nav-treeview" style="display: none;">
+              <div class="form-group">
+                <label style="color: #ccc;">Product Line</label>
+                <select class="form-control" id="productLine">
+                  <option>option 1</option>
+                  <option>option 2</option>
+                  <option>option 3</option>
+                  <option>option 4</option>
+                  <option>option 5</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label style="color: #ccc;">Year</label>
+                <select class="form-control" id="year">
+                  <option>option 1</option>
+                  <option>option 2</option>
+                  <option>option 3</option>
+                  <option>option 4</option>
+                  <option>option 5</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label style="color: #ccc;">Date range:</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="far fa-calendar-alt"></i>
+                    </span>
+                  </div>
+                  <input type="text" class="form-control float-right" id="reservation">
+                </div>
+                <!-- /.input group -->
+              </div>
+
             </div>
-            <input type="text" class="form-control float-right" id="reservation">
-          </div>
-          <!-- /.input group -->
-        </div>
+          </li>
+        </ul>
       </nav>
       <!-- /.sidebar-menu -->
     </div>
@@ -300,7 +317,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <canvas class="chart" id="line-chart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                <canvas class="chart" id="line-chart" style="min-height: 364px; height: 364px; max-height: 364px; max-width: 100%;"></canvas>
               </div>
               <!-- /.card-body -->
             </div>

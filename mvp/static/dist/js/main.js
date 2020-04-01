@@ -39,4 +39,34 @@ $(function (){
         form.classList.add('was-validated');
       }, false);
     });
+
+    //Date range picker
+    $('#reservation').daterangepicker()
+
+    $('#productLine, #year').on('change', function (){
+      updateCharts();
+    });
+
+    $('body').on('click', function (){
+        if($('body').hasClass('sidebar-collapse')) {
+          $('.sidebar .has-treeview > a').trigger('click');
+        }
+    });
+
 });
+
+function updateCharts() {
+  var productLine = $('#productLine');
+  var year        = $('#year');
+  var date        = $('#reservation');
+  console.log(productLine, year, date);
+
+  // $.ajax({
+  //   url: "demo_test.txt",
+  //   error: function (error){
+  //     console.log(error);
+  //   },
+  //   success: function(result) {
+  //   }
+  // });
+}
