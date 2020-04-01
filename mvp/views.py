@@ -9,7 +9,7 @@ import random
 
 
 
-import pandas as pd
+#import pandas as pd
 import mysql.connector
 from sqlalchemy import types, create_engine
 
@@ -334,12 +334,12 @@ def upload_file(request):
 			result = chardet.detect(rawdata)
 			charenc = result['encoding']
 			print(charenc)
-			for df in pd.read_csv(path+filename, chunksize=settings.CHUNKSIZE,sep=delimiter,encoding=charenc):
-			    if first_insert==1:
-			        df.to_sql(name='sales_data', con=engine, if_exists='replace', index=False, chunksize=settings.CHUNKSIZE)
-			        first_insert=0
-			    else:
-			        df.to_sql(name='sales_data', con=engine, if_exists='append', index=False, chunksize=settings.CHUNKSIZE)
+			#for df in pd.read_csv(path+filename, chunksize=settings.CHUNKSIZE,sep=delimiter,encoding=charenc):
+			#    if first_insert==1:
+			#        df.to_sql(name='sales_data', con=engine, if_exists='replace', index=False, chunksize=settings.CHUNKSIZE)
+			#        first_insert=0
+			#    else:
+			#        df.to_sql(name='sales_data', con=engine, if_exists='append', index=False, chunksize=settings.CHUNKSIZE)
 		product_analysis=get_bar_chart()
 		context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales()}
 	return render(request, 'mvp/index.html',context_vars)
