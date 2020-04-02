@@ -7,13 +7,21 @@ $(function (){
     maintainAspectRatio : false,
     responsive : true,
     options: {
+      scaleLabel: function(label){
+        return label.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      },
       title: {
         display: false,
         text: 'Chart.js Bar Chart - Stacked'
       },
       tooltips: {
         mode: 'index',
-        intersect: false
+        intersect: false,
+        callbacks: {
+          label: function(tooltipItem, data) {
+            return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          },
+        }
       },
       responsive: true,
       scales: {
@@ -21,7 +29,12 @@ $(function (){
           stacked: true,
         }],
         yAxes: [{
-          stacked: true
+          stacked: true,
+          ticks: {
+            callback: function(value, index, values) {
+              return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+          }
         }]
       }
     }

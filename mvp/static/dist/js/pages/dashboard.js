@@ -88,6 +88,15 @@ $(function () {
     legend: {
       display: false
     },
+    tooltips: {
+      mode: 'index',
+      intersect: false,
+      callbacks: {
+        label: function(tooltipItem, data) {
+          return tooltipItem.xLabel + " : " + tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
+      }
+    },
     scales: {
       xAxes: [{
         gridLines : {
@@ -97,6 +106,11 @@ $(function () {
       yAxes: [{
         gridLines : {
           display : false,
+        },
+        ticks: {
+          callback: function(value, index, values) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          }
         }
       }]
     }
@@ -118,13 +132,29 @@ $(function () {
     },
     maintainAspectRatio : false,
     responsive : true,
+    tooltips: {
+      callbacks: {
+        label: function(tooltipItem, data) {
+          var dataLabel = data.labels[tooltipItem.index];
+          var value = ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toLocaleString();
+
+          if (Chart.helpers.isArray(dataLabel)) {
+            dataLabel = dataLabel.slice();
+            dataLabel[0] += value;
+          } else {
+            dataLabel += value;
+          }
+          return dataLabel;
+        }
+      }
+    }
   }
   //Create pie or douhnut chart
   // You can switch between pie and douhnut using the method below.
   var pieChart = new Chart(pieChartCanvas, {
     type: 'doughnut',
     data: pieData,
-    options: pieOptions      
+    options: pieOptions
   });
 
   // Sales graph chart
@@ -136,6 +166,15 @@ $(function () {
     responsive : true,
     legend: {
       display: false,
+    },
+    tooltips: {
+      mode: 'index',
+      intersect: false,
+      callbacks: {
+        label: function(tooltipItem, data) {
+          return tooltipItem.xLabel + " : " + tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
+      }
     },
     scales: {
       xAxes: [{
@@ -152,6 +191,9 @@ $(function () {
         ticks : {
           stepSize: 5000,
           fontColor: '#efefef',
+          callback: function(value, index, values) {
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          }
         },
         gridLines : {
           display : true,
