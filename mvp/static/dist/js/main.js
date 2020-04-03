@@ -54,7 +54,10 @@ $(function (){
     });
 
     //Date range picker
-    $('#reservation').daterangepicker()
+    $('#reservation').daterangepicker({ },
+      function() {
+        updateCharts();
+    });
 
     $('#productLine, #year').on('change', function (){
       updateCharts();
@@ -69,9 +72,9 @@ $(function (){
 });
 
 function updateCharts() {
-  var productLine = $('#productLine');
-  var year        = $('#year');
-  var date        = $('#reservation');
+  var productLine = $('#productLine').val();
+  var year        = $('#year').val();
+  var date        = $('#reservation').val();
   console.log(productLine, year, date);
 
   // $.ajax({
