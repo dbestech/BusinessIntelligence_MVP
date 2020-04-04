@@ -5,7 +5,7 @@
  *      This is a demo file used only for the main dashboard (index.html)
  **/
 
-$(function () {
+$(document).ready(function () {
 
   'use strict'
 
@@ -29,6 +29,48 @@ $(function () {
 
   // bootstrap WYSIHTML5 - text editor
   $('.textarea').summernote()
+
+  var ctx = document.getElementById('barChart').getContext('2d');
+  window.myBar = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    maintainAspectRatio : false,
+    responsive : true,
+    options: {
+      scaleLabel: function(label){
+        return label.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      },
+      title: {
+        display: false,
+        text: 'Chart.js Bar Chart - Stacked'
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false,
+        callbacks: {
+          label: function(tooltipItem, data) {
+            return tooltipItem.yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          },
+        }
+      },
+      responsive: true,
+      scales: {
+        xAxes: [{
+          stacked: true,
+        }],
+        yAxes: [{
+          stacked: true,
+          ticks: {
+            callback: function(value, index, values) {
+              return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+          }
+        }]
+      }
+    }
+  });
+
+
 
   $('.daterange').daterangepicker({
     ranges   : {
@@ -117,7 +159,7 @@ $(function () {
   }
 
   // This will get the first returned node in the jQuery collection.
-  var salesChart = new Chart(salesChartCanvas, { 
+  window.salesChart = new Chart(salesChartCanvas, { 
       type: 'line', 
       data: salesChartData, 
       options: salesChartOptions
@@ -151,7 +193,7 @@ $(function () {
   }
   //Create pie or douhnut chart
   // You can switch between pie and douhnut using the method below.
-  var pieChart = new Chart(pieChartCanvas, {
+  window.pieChart = new Chart(pieChartCanvas, {
     type: 'doughnut',
     data: pieData,
     options: pieOptions
@@ -205,11 +247,54 @@ $(function () {
   }
 
   // This will get the first returned node in the jQuery collection.
-  var salesGraphChart = new Chart(salesGraphChartCanvas, { 
+  window.salesGraphChart = new Chart(salesGraphChartCanvas, { 
       type: 'line', 
       data: salesGraphChartData, 
       options: salesGraphChartOptions
     }
   )
 
-})
+});
+
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function updateCharts() {
+  var productLine = $('#productLine').val();
+  var yr          = $('#year').val();
+  var cntry       = $('#country').val();
+
+   $.ajax({
+     url: "get_filtered_data",
+     type: "POST",
+     data : { prod: productLine, year:yr, country:cntry},
+     dataType: "json",
+     error: function (error){
+       alert("error");
+     },
+     success: function(result) {
+      $('#orders_span').html(numberWithCommas(result.orders));
+      $('#sales_span').html(numberWithCommas(result.sales));
+      $('#customer_span').html(numberWithCommas(result.customers));
+      $('#product_span').html(numberWithCommas(result.products));
+
+      salesGraphChart.data = result.chart1;
+      salesGraphChart.update();
+      salesChart.data = result.chart2;
+      salesChart.update();
+      myBar.data = result.chart3;
+      myBar.update();
+      pieChart.data = result.chart4;
+      pieChart.update();
+      jQuery('#world-map').vectorMap('set', 'colors', result.chart5);
+
+      alert(JSON.stringify(result.chart1));
+      alert(JSON.stringify(result.chart2));
+      alert(JSON.stringify(result.chart3));
+      alert(JSON.stringify(result.chart4));
+      alert(JSON.stringify(result.chart5));
+      // YEAR WISE RESULT result.year_wise_json;
+     }
+  });
+}
