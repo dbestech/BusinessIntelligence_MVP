@@ -40,6 +40,7 @@
   <style>
     .sidebar-collapse .has-treeview.menu-open .nav-treeview { display: none !important; }
     .sidebar-collapse .sidebar-focused .has-treeview.menu-open .nav-treeview { display: block !important; }
+    .small-filter{height:28px !important;padding:3px !important; font-size:15px;}
   </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -134,27 +135,15 @@
               <div class="card">
                 <div class="card-body">
                   <div class="form-group">
-                    <label style="font-weight: 400">Product Line</label>
-                    <select class="form-control" id="productLine">
-                      <option>option 1</option>
-                      <option>option 2</option>
-                      <option>option 3</option>
-                      <option>option 4</option>
-                      <option>option 5</option>
-                    </select>
+                    <label style="font-weight: 200">Product Line</label>
+                   {{prod_sel | safe}}
                   </div>
                   <div class="form-group">
-                    <label style="font-weight: 400">Year</label>
-                    <select class="form-control" id="year">
-                      <option>option 1</option>
-                      <option>option 2</option>
-                      <option>option 3</option>
-                      <option>option 4</option>
-                      <option>option 5</option>
-                    </select>
+                    <label style="font-weight: 200">Year</label>
+                    {{year_sel | safe}}
                   </div>
-                  <div class="form-group">
-                    <label style="font-weight: 400">Date range:</label>
+<!--                  <div class="form-group">
+                    <label style="font-weight: 200">Date range:</label>
                     <div class="input-group">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
@@ -163,8 +152,13 @@
                       </div>
                       <input type="text" class="form-control float-right mt-0" id="reservation">
                     </div>
-                    <!-- /.input group -->
+                   
+                  </div>-->
+                  <div class="form-group">
+                    <label style="font-weight: 200">Country</label>
+                    {{country_sel| safe}}
                   </div>
+                  <button id="generate" type="button" onclick="updateCharts()" class="btn btn-block btn-success btn-xs">Generate</button>
                 </div>
               </div>
             </div>
@@ -199,7 +193,7 @@
             <!-- small box -->
             <div class="small-box bg-info">
               <div class="inner">
-                <h3>{{orders}}</h3>
+                <h3><span id="orders_span">{{orders}}</span></h3>
 
                 <p>Total Orders</p>
               </div>
@@ -213,7 +207,8 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3>{{sales}}</h3>
+              	{% load humanize %}
+                <h3><span id="sales_span">{{sales | intcomma}}</span></h3>
 
                 <p>Total Sales</p>
               </div>
@@ -227,7 +222,8 @@
             <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
-                <h3>{{çustomers}}</h3>
+                {% load humanize %}
+                <h3><span id="customer_span">{{çustomers | intcomma}}</span></h3>
 
                 <p>Total Customers</p>
               </div>
@@ -241,7 +237,7 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>{{prods}}</h3>
+                <h3><h3><span id="product_span">{{prods | intcomma}}</span></h3></h3>
 
                 <p>Total Product Lines</p>
               </div>
@@ -446,8 +442,9 @@
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
 <script src="{% static 'dist/js/pages/dashboard.js' %}"></script>
 
-<script src="{% static 'dist/js/main.js' %}"></script>
+
 <!-- AdminLTE for demo purposes -->
 <script src="{% static 'dist/js/demo.js' %}"></script>
+<script src="{% static 'dist/js/main.js' %}"></script>
 </body>
 </html>

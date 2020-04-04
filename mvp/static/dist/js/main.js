@@ -54,15 +54,30 @@ $(function (){
     });
 
     //Date range picker
-    $('#reservation').daterangepicker({ },
-      function() {
+    $('#reservation').daterangepicker({ 
+     showDropdowns: true,
+    startDate: '1970-01-01',
+        endDate:'1970-01-01',
+        ranges: {
+           'No filter': ['1970-01-01','1970-01-01'],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+    locale: { 
+        format: 'YYYY-MM-DD'
+    }
+    },
+      /*function() {
         updateCharts();
-    });
+    }*/);
 
-    $('#productLine, #year').on('change', function (){
+  /*  $('#productLine, #year').on('change', function (){
       updateCharts();
     });
-
+*/
     $('body').on('click', function (){
         if($('body').hasClass('sidebar-collapse')) {
           $('.sidebar .has-treeview > a').trigger('click');
@@ -70,19 +85,37 @@ $(function (){
     });
 
 });
-
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 function updateCharts() {
   var productLine = $('#productLine').val();
-  var year        = $('#year').val();
-  var date        = $('#reservation').val();
-  console.log(productLine, year, date);
+  var yr        = $('#year').val();
+  var cntry        = $('#country').val();
 
-  // $.ajax({
-  //   url: "demo_test.txt",
-  //   error: function (error){
-  //     console.log(error);
-  //   },
-  //   success: function(result) {
-  //   }
-  // });
+   $.ajax({
+     url: "get_filtered_data",
+     type: "POST",
+     data : { prod: productLine, year:yr, country:cntry},
+     dataType: "json",
+     error: function (error){
+       alert("error");
+     },
+     success: function(result) {
+     	$('#orders_span').html(numberWithCommas(result.orders));
+     	$('#sales_span').html(numberWithCommas(result.sales));
+     	$('#customer_span').html(numberWithCommas(result.customers));
+     	$('#product_span').html(numberWithCommas(result.products));
+     	
+     	alert(JSON.stringify(result.chart1));
+     	alert(JSON.stringify(result.chart2));
+     	alert(JSON.stringify(result.chart3));
+     	alert(JSON.stringify(result.chart4));
+     	alert(JSON.stringify(result.chart5));
+     	
+     	// YEAR WISE RESULT result.year_wise_json;
+     	
+     	
+     }
+  });
 }

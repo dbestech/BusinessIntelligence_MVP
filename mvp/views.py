@@ -16,6 +16,64 @@ from sqlalchemy import types, create_engine
 import os
 import json
 
+
+def build_product_select():
+	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
+	cursor = mydb.cursor(dictionary=True)
+	
+	load_query="""SELECT
+	DISTINCT PRODUCTLINE as key_ , PRODUCTLINE as val_
+	from
+	`sales_data`"""
+	cursor.execute(load_query)
+	rows = cursor.fetchall()
+	
+	select="""<select class='small-filter form-control' name='productLine' id='productLine'><option value='All' selected>All</option>"""
+	for row in rows:
+		select=select+"""
+		<option value='"""+row['val_']+"""'>"""+row['key_']+"""</option>
+		"""
+	select=select+"""</select>"""
+	return select
+
+def build_country_select():
+	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
+	cursor = mydb.cursor(dictionary=True)
+	
+	load_query="""SELECT
+	DISTINCT COUNTRY as key_ , COUNTRY as val_
+	from
+	`sales_data`"""
+	cursor.execute(load_query)
+	rows = cursor.fetchall()
+	
+	select="""<select class='small-filter form-control' name='country' id='country'><option value='All' selected>All</option>"""
+	for row in rows:
+		select=select+"""
+		<option value='"""+row['val_']+"""'>"""+row['key_']+"""</option>
+		"""
+	select=select+"""</select>"""
+	return select
+
+def build_year_select():
+	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
+	cursor = mydb.cursor(dictionary=True)
+	
+	load_query="""SELECT
+	DISTINCT YEAR_ID as key_ , YEAR_ID as val_
+	from
+	`sales_data`"""
+	cursor.execute(load_query)
+	rows = cursor.fetchall()
+	
+	select="""<select  class='small-filter form-control' id='year' name='year'><option value='All' selected>All</option>"""
+	for row in rows:
+		select=select+"""
+		<option value='"""+str(row['val_'])+"""'>"""+str(row['key_'])+"""</option>
+		"""
+	select=select+"""</select>"""
+	return select
+
 def get_country_wise_sales():
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
@@ -39,50 +97,120 @@ GROUP BY 1"""
 	print(data)
 	return json.dumps(data)
 
-def get_total_orders():
+def get_total_orders(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
 
+	where=" WHERE "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" WHERE ":
+		where=""
+		
 	load_query=""" SELECT
-COUNT(DISTINCT ORDERNUMBER) AS ORDERS
-FROM
-`sales_data`"""
+	COUNT(DISTINCT ORDERNUMBER) AS ORDERS
+	FROM
+	`sales_data`"""+where
+	
+	print(load_query)
 	cursor.execute(load_query)
 	rows = cursor.fetchone()
 	return rows['ORDERS']
 	
-def get_total_sales():
+def get_total_sales(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	
+	where=" WHERE "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" WHERE ":
+		where=""
+	
+		
 	load_query=""" SELECT
-SUM(SALES) AS SALES
+COALESCE(SUM(SALES),0) AS SALES
 FROM
-`sales_data`"""
+`sales_data`"""+where
 	cursor.execute(load_query)
 	rows = cursor.fetchone()
 	return round(rows['SALES'])
 	
-def get_total_product_lines():
+def get_total_product_lines(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	where=" WHERE "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" WHERE ":
+		where=""
 	load_query=""" SELECT
 COUNT(DISTINCT PRODUCTLINE) AS PRODUCTLINE
 FROM
-`sales_data`"""
+`sales_data`"""+where
 	cursor.execute(load_query)
 	rows = cursor.fetchone()
 	return round(rows['PRODUCTLINE'])
 
-def get_total_customers():
+
+
+def get_total_customers(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	where=" WHERE "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" WHERE ":
+		where=""
 	load_query=""" SELECT
 COUNT(DISTINCT CUSTOMERNAME) AS CUSTOMERNAME
 FROM
-`sales_data`"""
+`sales_data`"""+where
+	print(load_query);
 	cursor.execute(load_query)
 	rows = cursor.fetchone()
 	return round(rows['CUSTOMERNAME'])
@@ -158,10 +286,27 @@ ORDER BY 1
 	return json.dumps(final_data)
 
 
-def get_year_wise_comparison():
+def get_year_wise_comparison(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	
+	where=" AND "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" AND ":
+		where=""
+		
 	load_query="""
 	SELECT
 	MONTHNAME(`ORDERDATE`) AS MONTH_,
@@ -217,7 +362,7 @@ def get_year_wise_comparison():
 	EXTRACT(YEAR FROM `ORDERDATE`) = """+str(year)+"""
 	AND
 	MONTHNAME(`ORDERDATE`)='"""+str(mon)+"""'
-	"""
+	"""+where
 			print(query)
 			cursor.execute(query)
 			rows = cursor.fetchone()
@@ -306,7 +451,7 @@ def get_bar_chart():
 
 def index(request):
 	product_analysis=get_bar_chart()
-	context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales()}
+	context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales(),'prod_sel':build_product_select(),'year_sel':build_year_select(),'country_sel':build_country_select()}
 	print(product_analysis['pie_chart'])
 	return render(request, 'mvp/index.html',context_vars)
 
@@ -341,6 +486,29 @@ def upload_file(request):
 			#    else:
 			#        df.to_sql(name='sales_data', con=engine, if_exists='append', index=False, chunksize=settings.CHUNKSIZE)
 		product_analysis=get_bar_chart()
-		context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales()}
+		context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales(),'prod_sel':build_product_select(),'year_sel':build_year_select(),'country_sel':build_country_select()}
 	return render(request, 'mvp/index.html',context_vars)
 	return render(request, 'mvp/index.html',context_vars)
+
+@csrf_exempt
+def get_filtered_data(request):
+	if request.method == 'POST':
+		prod=request.POST.get("prod", "").replace("All","na")
+		year=request.POST.get("year", "").replace("All","na")
+		country=request.POST.get("country", "").replace("All","na")
+		
+		
+		orders=get_total_orders(prod,year,country);
+		sales=get_total_sales(prod,year,country);
+		customers=get_total_customers(prod,year,country);
+		products=get_total_product_lines(prod,year,country);
+		
+		product_analysis=get_bar_chart()
+		
+		chart1=get_year_wise_comparison(prod,year,country)
+		chart2=get_quarter_wise_comparison()
+		chart3=product_analysis['bar_chart']
+		chart4=product_analysis['pie_chart']
+		chart5=get_country_wise_sales()
+		
+		return HttpResponse(json.dumps({'orders': orders, 'sales':sales,'customers':customers,'products':products,'chart1':chart1,'chart2':chart2,'chart3':chart3,'chart4':chart4,'chart5':chart5}), content_type="application/json")
