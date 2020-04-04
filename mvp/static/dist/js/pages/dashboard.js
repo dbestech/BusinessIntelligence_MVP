@@ -279,10 +279,10 @@ function updateCharts() {
       $('#customer_span').html(numberWithCommas(result.customers));
       $('#product_span').html(numberWithCommas(result.products));
 
-      salesGraphChart.data = result.chart1;
-      salesGraphChart.update();
-      salesChart.data = result.chart2;
+      salesChart.data = result.chart1;
       salesChart.update();
+      salesGraphChart.data = result.chart2;
+      salesGraphChart.update();
       myBar.data = result.chart3;
       myBar.update();
       pieChart.data = result.chart4;
