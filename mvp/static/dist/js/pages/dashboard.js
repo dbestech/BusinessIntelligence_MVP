@@ -279,21 +279,42 @@ function updateCharts() {
       $('#customer_span').html(numberWithCommas(result.customers));
       $('#product_span').html(numberWithCommas(result.products));
 
-      salesChart.data = result.chart1;
+	salesChart.data = JSON.parse(result.chart1);
       salesChart.update();
-      salesGraphChart.data = result.chart2;
-      salesGraphChart.update();
-      myBar.data = result.chart3;
-      myBar.update();
-      pieChart.data = result.chart4;
-      pieChart.update();
-      jQuery('#world-map').vectorMap('set', 'colors', result.chart5);
 
-      alert(JSON.stringify(result.chart1));
-      alert(JSON.stringify(result.chart2));
-      alert(JSON.stringify(result.chart3));
-      alert(JSON.stringify(result.chart4));
-      alert(JSON.stringify(result.chart5));
+      salesGraphChart.data = JSON.parse(result.chart2);
+      salesGraphChart.update();
+      
+      myBar.data = JSON.parse(result.chart3);
+      myBar.update();
+      pieChart.data = JSON.parse(result.chart4);
+      pieChart.update();
+
+    	
+      //jQuery('#world-map').vectorMap('set', 'colors', JSON.parse(result.chart5));
+	  //jQuery('#world-map').vectorMap('set', 'values', JSON.parse(result.chart5));
+      //var obj = $('#world-map .jvectormap-container').data('mapObject');
+      //obj.series.region[0].setValues(JSON.parse(result.chart5));
+   visitorsData=JSON.parse(result.chart5)
+      $('#world-map').empty();
+singlemap = null;
+singlemap = $('#world-map').vectorMap({
+  map: 'world_en',
+    backgroundColor: 'transparent',
+    color: '#ffffff',
+    hoverOpacity: 0.7,
+    selectedColor: '#333',
+    enableZoom: false,
+    showTooltip: true,
+    scaleColors: ['#00afff', '#003046'],
+    values: visitorsData,
+    normalizeFunction: 'polynomial',
+    onRegionLabelShow: function (e, el, code) {
+      if (typeof visitorsData[code] != 'undefined')
+        el.html(el.html() + ': ' + visitorsData[code] + ' new visitors')
+    }
+});
+
       // YEAR WISE RESULT result.year_wise_json;
      }
   });

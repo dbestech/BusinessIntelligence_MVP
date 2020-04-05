@@ -9,7 +9,7 @@ import random
 
 
 
-#import pandas as pd
+import pandas as pd
 import mysql.connector
 from sqlalchemy import types, create_engine
 
@@ -74,10 +74,25 @@ def build_year_select():
 	select=select+"""</select>"""
 	return select
 
-def get_country_wise_sales():
+def get_country_wise_sales(prod='na',year='na',country='na'):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	where=" WHERE "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" WHERE ":
+		where=""
 	load_query="""SELECT
 LOWER(`code`) AS COUNTRY,
 ROUND(SUM(SALES)) AS SALES
@@ -87,7 +102,9 @@ LEFT JOIN
 country B
 ON
 LOWER(A.`COUNTRY`) = LOWER(B.`countryname`)
+"""+where+"""
 GROUP BY 1"""
+	print(load_query)
 	cursor.execute(load_query)
 	rows = cursor.fetchall()
 	
@@ -215,10 +232,26 @@ FROM
 	rows = cursor.fetchone()
 	return round(rows['CUSTOMERNAME'])
 
-def get_quarter_wise_comparison():
+def get_quarter_wise_comparison(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	where=" AND "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" AND ":
+		where=""
+		
 	load_query="""
 	SELECT
 CONCAT(`YEAR_ID`,'-',`QTR_ID`) AS Q
@@ -273,7 +306,7 @@ ORDER BY 1
 	PRODUCTLINE = '"""+str(prod)+"""'
 	AND
 	CONCAT(`YEAR_ID`,'-',`QTR_ID`)='"""+str(q)+"""'
-	"""
+	"""+where
 			print(query)
 			cursor.execute(query)
 			rows = cursor.fetchone()
@@ -374,10 +407,27 @@ def get_year_wise_comparison(prod="na",year="na",country="na"):
 	print(final_data)
 	return json.dumps(final_data)
 
-def get_bar_chart():
+def get_bar_chart(prod="na",year="na",country="na"):
 	mydb = mysql.connector.connect(host=settings.MYSQL_HOST_IP, user=settings.MYSQL_USER, passwd=settings.MYSQL_PASSWORD, database=settings.MYSQL_DATABASE)
 	cursor = mydb.cursor(dictionary=True)
-
+	
+	where=" AND "
+	if prod != "na":
+		where=where+" PRODUCTLINE = '"+prod+"'"
+	
+	if year != "na" and prod != "na":
+		where=where+" AND YEAR_ID = '"+year+"'"
+	elif year != "na":
+		where=where+" YEAR_ID = '"+year+"'"
+		
+	if country != "na" and (prod != "na" or year != "na"):
+		where=where+" AND COUNTRY = '"+country+"'"
+	elif country != "na":
+		where=where+" COUNTRY = '"+country+"'"
+	
+	if where==" AND ":
+		where=""
+	
 	load_query="""
 	SELECT
 	MONTHNAME(`ORDERDATE`) AS MONTH_,
@@ -400,6 +450,8 @@ def get_bar_chart():
 	PRODUCTLINE AS PRODUCTLINE
 	FROM
 	`sales_data`
+	where 1=1
+	"""+where+"""
 	GROUP BY 1
 	ORDER BY 1
 	"""
@@ -423,7 +475,7 @@ def get_bar_chart():
 		`sales_data`
 		WHERE
 		`PRODUCTLINE` = '"""+prod+"""'		
-		"""
+		"""+where
 		cursor.execute(query)
 		rows = cursor.fetchone()
 		pie_data.append(rows['SALES'])
@@ -437,7 +489,7 @@ def get_bar_chart():
 	`PRODUCTLINE` = '"""+prod+"""'		
 	AND
 	MONTHNAME(`ORDERDATE`)='"""+mon+"""'
-	"""
+	"""+where
 			cursor.execute(query)
 			rows = cursor.fetchone()
 			data.append(rows['SALES'])
@@ -479,12 +531,12 @@ def upload_file(request):
 			result = chardet.detect(rawdata)
 			charenc = result['encoding']
 			print(charenc)
-			#for df in pd.read_csv(path+filename, chunksize=settings.CHUNKSIZE,sep=delimiter,encoding=charenc):
-			#    if first_insert==1:
-			#        df.to_sql(name='sales_data', con=engine, if_exists='replace', index=False, chunksize=settings.CHUNKSIZE)
-			#        first_insert=0
-			#    else:
-			#        df.to_sql(name='sales_data', con=engine, if_exists='append', index=False, chunksize=settings.CHUNKSIZE)
+			for df in pd.read_csv(path+filename, chunksize=settings.CHUNKSIZE,sep=delimiter,encoding=charenc):
+			    if first_insert==1:
+			        df.to_sql(name='sales_data', con=engine, if_exists='replace', index=False, chunksize=settings.CHUNKSIZE)
+			        first_insert=0
+			    else:
+			        df.to_sql(name='sales_data', con=engine, if_exists='append', index=False, chunksize=settings.CHUNKSIZE)
 		product_analysis=get_bar_chart()
 		context_vars={'orders':get_total_orders(),'sales':get_total_sales(),'prods':get_total_product_lines(),'çustomers':get_total_customers(),'bar_chart':product_analysis['bar_chart'],'pie_chart':product_analysis['pie_chart'],'year_wise':get_year_wise_comparison(),'quarter':get_quarter_wise_comparison(),'world':get_country_wise_sales(),'prod_sel':build_product_select(),'year_sel':build_year_select(),'country_sel':build_country_select()}
 	return render(request, 'mvp/index.html',context_vars)
@@ -503,12 +555,12 @@ def get_filtered_data(request):
 		customers=get_total_customers(prod,year,country);
 		products=get_total_product_lines(prod,year,country);
 		
-		product_analysis=get_bar_chart()
+		product_analysis=get_bar_chart(prod,year,country)
 		
 		chart1=get_year_wise_comparison(prod,year,country)
-		chart2=get_quarter_wise_comparison()
+		chart2=get_quarter_wise_comparison(prod,year,country)
 		chart3=product_analysis['bar_chart']
 		chart4=product_analysis['pie_chart']
-		chart5=get_country_wise_sales()
+		chart5=get_country_wise_sales(prod,year,country)
 		
 		return HttpResponse(json.dumps({'orders': orders, 'sales':sales,'customers':customers,'products':products,'chart1':chart1,'chart2':chart2,'chart3':chart3,'chart4':chart4,'chart5':chart5}), content_type="application/json")
